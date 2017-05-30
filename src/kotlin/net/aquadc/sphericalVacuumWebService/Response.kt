@@ -10,3 +10,7 @@ data class QuadraticEquationSolution(
         val x1: Double,
         val x2: Double
 ) : Response()
+
+data class StatResponse(val stats: List<QuadraticEquationStat>) : Response()
+
+object NoResponse : Response()
