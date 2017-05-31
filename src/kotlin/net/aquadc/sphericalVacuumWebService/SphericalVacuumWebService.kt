@@ -1,11 +1,10 @@
 package net.aquadc.sphericalVacuumWebService
 
 import io.undertow.Undertow
+import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.BlockingHandler
 import io.undertow.util.Headers
-import java.io.InputStream
 import java.time.Instant
-import java.util.*
 
 /**
  * Created by miha on 25.04.17
@@ -32,6 +31,7 @@ fun main(args: Array<String>) {
     val parserImpl = when (parser) {
         "gson-ast" -> GsonAstParser
         "gson-streaming" -> GsonStreamingParser
+        "jackson-streaming" -> JacksonStreamingParser
         else -> throw UnsupportedOperationException("unknown parser: $parser")
     }
 
@@ -51,31 +51,29 @@ class WebService(
         Undertow.builder()
                 .addHttpListener(port, host)
                 .setHandler(BlockingHandler { exchange ->
-                    val method = exchange.requestMethod
-                    val request =
-                            if (method.equalToString("get"))
-                                routeByUrl(exchange.requestPath, exchange.queryParameters)
-                            else if (method.equalToString("post"))
-                                routeByBody(exchange.requestHeaders[Headers.CONTENT_TYPE]?.first ?: "", exchange.inputStream)
-                            else exchange.let {
-                                it.statusCode = HTTP_METHOD_NOT_SUPPORTED
-                                it.responseSender.send("HTTP method $method is not supported.")
-                                return@BlockingHandler
-                            }
+                    try {
+                        val method = exchange.requestMethod
 
-                    val response = handle(request)
-
-                    val (serialized, contentType) = serialize(exchange.requestHeaders[Headers.ACCEPT]?.first ?: "*/*", response)
-
-                    exchange.responseHeaders.put(Headers.CONTENT_TYPE, contentType)
-                    exchange.responseSender.send(serialized)
+                        if (method.equalToString("get"))
+                            routeByUrl(exchange)
+                        else if (method.equalToString("post"))
+                            routeByBody(exchange)
+                        else exchange.let {
+                            it.statusCode = HTTP_METHOD_NOT_SUPPORTED
+                            it.responseSender.send("HTTP method $method is not supported.")
+                        }
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                    }
                 })
                 .build()
                 .start()
     }
 
-    fun routeByUrl(requestPath: String, queryParameters: Map<String, Deque<String>>): Request {
-        return when (requestPath) {
+    fun routeByUrl(exchange: HttpServerExchange) {
+        val requestPath = exchange.requestPath
+        val queryParameters = exchange.queryParameters
+        val request = when (requestPath) {
             "/" -> JsonParseRequest
             "/qe" -> QuadraticEquationRequest(
                     queryParameters["a"]!!.first.toDouble(),
@@ -92,17 +90,28 @@ class WebService(
             )
             else -> throw UnsupportedOperationException("can't handle address $requestPath")
         }
+        exchange.handle(request)
     }
 
-    fun routeByBody(contentType: String, requestBody: InputStream): Request = when (contentType) {
-        "application/json" -> jsonParser.parseRequest(requestBody)
-        else -> throw UnsupportedOperationException("Unsupported request body Content-Type: $contentType")
+    fun routeByBody(exchange: HttpServerExchange) {
+        val contentType = exchange.requestHeaders[Headers.CONTENT_TYPE]?.first
+        when (contentType) {
+            "application/json" -> jsonParser.parseRequest(exchange.inputStream, exchange.requestReceiver) { exchange.handle(it) }
+            else -> throw UnsupportedOperationException("Unsupported request body Content-Type: $contentType")
+        }
     }
 
-    fun handle(request: Request): Response = when (request) {
-        is JsonParseRequest -> JsonParseRequest.parse(jsonParser)
-        is QuadraticEquationRequest -> request.solve(statsRepository)
-        is StatRequest -> statsRepository.findStats(request)
+    private fun HttpServerExchange.handle(request: Request) {
+        val response = when (request) {
+            is JsonParseRequest -> JsonParseRequest.parse(jsonParser)
+            is QuadraticEquationRequest -> request.solve(statsRepository)
+            is StatRequest -> statsRepository.findStats(request)
+        }
+
+        val (serialized, contentType) = serialize(requestHeaders[Headers.ACCEPT]?.first ?: "*/*", response)
+
+        responseHeaders.put(Headers.CONTENT_TYPE, contentType)
+        responseSender.send(serialized)
     }
 
     fun serialize(accept: String, response: Response): Pair<String, String> = when (accept) {

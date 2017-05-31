@@ -1,10 +1,14 @@
 package net.aquadc.sphericalVacuumWebService
 
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonToken
 import com.google.gson.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import io.undertow.io.Receiver
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.StringWriter
 import java.time.Instant
 
 /**
@@ -12,7 +16,7 @@ import java.time.Instant
  */
 
 interface JsonParser {
-    fun parseRequest(requestBody: InputStream): Request
+    fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request)->Unit)
     fun serializeResponse(response: Response): String
 }
 
@@ -57,8 +61,9 @@ object GsonAstParser : JsonParser {
             .serializeSpecialFloatingPointValues()
             .create()
 
-    override fun parseRequest(requestBody: InputStream): Request =
-            gson.fromJson(InputStreamReader(requestBody), Request::class.java)
+    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request)->Unit) {
+        consumer(gson.fromJson(InputStreamReader(inputStream), Request::class.java))
+    }
 
     override fun serializeResponse(response: Response): String =
             gson.toJson(response, Response::class.java)
@@ -150,8 +155,9 @@ object GsonStreamingParser : JsonParser {
             })
             .create()
 
-    override fun parseRequest(requestBody: InputStream): Request =
-            gson.fromJson(InputStreamReader(requestBody), Request::class.java)
+    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request)->Unit) {
+        consumer(gson.fromJson(InputStreamReader(inputStream), Request::class.java))
+    }
 
     override fun serializeResponse(response: Response): String =
             gson.toJson(response, Response::class.java)
@@ -188,4 +194,118 @@ object GsonStreamingParser : JsonParser {
         return os.toString("UTF-8")
     }
 
+}*/
+
+object JacksonStreamingParser : JsonParser {
+
+    val factory = JsonFactory().enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+
+    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request) -> Unit) {
+        val parser = factory.createParser(inputStream)
+        check(parser.nextToken() == JsonToken.START_OBJECT)
+        check(parser.nextFieldName() == "method", { "first name in JSON is ${parser.currentName}, but for streaming it must be 'method'" })
+        val method = parser.nextTextValue()
+        consumer(when (method) {
+            "qe" -> TODO("qe parsing")
+            "stat" -> {
+                var after = Long.MIN_VALUE
+                var before = Long.MIN_VALUE
+                var a: ClosedRange<Double>? = null
+                var b: ClosedRange<Double>? = null
+                var c: ClosedRange<Double>? = null
+                var x1: ClosedRange<Double>? = null
+                var x2: ClosedRange<Double>? = null
+
+                while (true) {
+                    val name = parser.nextFieldName() ?: break
+                    when (name) {
+                        "after" -> { check(parser.nextValue() == JsonToken.VALUE_NUMBER_INT); after = parser.longValue }
+                        "before" -> { check(parser.nextValue() == JsonToken.VALUE_NUMBER_INT); before = parser.longValue }
+                        "a" -> a = parser.nextDoubleRangeValue()
+                        "b" -> b = parser.nextDoubleRangeValue()
+                        "c" -> c = parser.nextDoubleRangeValue()
+                        "x1" -> x1 = parser.nextDoubleRangeValue()
+                        "x2" -> x2 = parser.nextDoubleRangeValue()
+                        else -> throw UnsupportedOperationException("unknown key in 'stat': $name")
+                    }
+                }
+
+                StatRequest(
+                        if (after == Long.MIN_VALUE) null else Instant.ofEpochSecond(after),
+                        if (before == Long.MIN_VALUE) null else Instant.ofEpochSecond(before),
+                        a, b, c, x1, x2)
+            }
+            else -> throw UnsupportedOperationException()
+        })
+    }
+
+    override fun serializeResponse(response: Response): String {
+        val out = StringWriter()
+        val gen = factory.createGenerator(out)
+        val ex = when (response) {
+            is QuadraticEquationSolution -> {
+                gen.writeStartObject()
+                gen.writeNumberField("x1", response.x1)
+                gen.writeNumberField("x2", response.x2)
+                gen.writeEndObject()
+            }
+            is StatResponse -> {
+                gen.writeStartArray()
+
+                response.stats.forEach {
+                    gen.writeStartObject()
+                    gen.writeNumberField("a", it.a)
+                    gen.writeNumberField("b", it.b)
+                    gen.writeNumberField("c", it.c)
+                    gen.writeNumberField("x1", it.x1)
+                    gen.writeNumberField("x2", it.x2)
+                    gen.writeNumberField("date", it.date.epochSecond)
+                    gen.writeEndObject()
+                }
+
+                gen.writeEndArray()
+            }
+            NoResponse -> gen.writeNull()
+        }
+        gen.flush()
+        return out.toString()
+    }
+
+    private fun com.fasterxml.jackson.core.JsonParser.nextDoubleRangeValue(): ClosedRange<Double> {
+        check(nextToken() == JsonToken.START_OBJECT)
+        var min = Double.NEGATIVE_INFINITY
+        var max = Double.POSITIVE_INFINITY
+        while (true) {
+            val name = nextFieldName() ?: break
+            val curVal = nextValue()
+            check(curVal == JsonToken.VALUE_NUMBER_FLOAT || curVal == JsonToken.VALUE_NUMBER_INT, { "current value expected to be a number, got $curVal" })
+            when (name) {
+                "min" -> min = doubleValue
+                "max" -> max = doubleValue
+                else -> throw UnsupportedOperationException("unknown key in range: $name")
+            }
+        }
+        check(currentToken == JsonToken.END_OBJECT, { "expected end object, got $currentToken" })
+        return min..max
+    }
+
+}
+
+/*object CustomParser : JsonParser {
+
+    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request) -> Unit) {
+        receiver.receivePartialBytes { _, message, last ->
+
+        }
+    }
+
+    override fun serializeResponse(response: Response): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    priva
+
+    private enum class JsonToken {
+        BeginObject, EndObject
+    }
 }*/

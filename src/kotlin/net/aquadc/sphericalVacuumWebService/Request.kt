@@ -1,6 +1,8 @@
 package net.aquadc.sphericalVacuumWebService
 
+import io.undertow.io.Receiver
 import java.io.ByteArrayInputStream
+import java.lang.reflect.Proxy
 import java.time.Instant
 
 /**
@@ -43,9 +45,14 @@ object JsonParseRequest : Request() {
 	}
 }"""
 
+    val uselessReceiver = Proxy
+            .newProxyInstance(Receiver::class.java.classLoader, arrayOf(Receiver::class.java)) { _, _, _ ->
+                throw UnsupportedOperationException()
+            } as Receiver
+
     fun parse(jsonParser: JsonParser): NoResponse {
 
-        jsonParser.parseRequest(ByteArrayInputStream(req.toByteArray()))
+        jsonParser.parseRequest(ByteArrayInputStream(req.toByteArray()), uselessReceiver, { })
 
         return NoResponse
     }
