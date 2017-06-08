@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonToken
 import com.google.gson.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import io.undertow.io.Receiver
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.StringWriter
@@ -16,7 +15,7 @@ import java.time.Instant
  */
 
 interface JsonParser {
-    fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request)->Unit)
+    fun parseRequest(inputStream: InputStream, consumer: (Request)->Unit)
     fun serializeResponse(response: Response): String
 }
 
@@ -61,7 +60,7 @@ object GsonAstParser : JsonParser {
             .serializeSpecialFloatingPointValues()
             .create()
 
-    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request)->Unit) {
+    override fun parseRequest(inputStream: InputStream, consumer: (Request)->Unit) {
         consumer(gson.fromJson(InputStreamReader(inputStream), Request::class.java))
     }
 
@@ -155,7 +154,7 @@ object GsonStreamingParser : JsonParser {
             })
             .create()
 
-    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request)->Unit) {
+    override fun parseRequest(inputStream: InputStream, consumer: (Request)->Unit) {
         consumer(gson.fromJson(InputStreamReader(inputStream), Request::class.java))
     }
 
@@ -198,9 +197,9 @@ object GsonStreamingParser : JsonParser {
 
 object JacksonStreamingParser : JsonParser {
 
-    val factory = JsonFactory().enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+    val factory = JsonFactory().also { it.enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS) }
 
-    override fun parseRequest(inputStream: InputStream, receiver: Receiver, consumer: (Request) -> Unit) {
+    override fun parseRequest(inputStream: InputStream, consumer: (Request) -> Unit) {
         val parser = factory.createParser(inputStream)
         check(parser.nextToken() == JsonToken.START_OBJECT)
         check(parser.nextFieldName() == "method", { "first name in JSON is ${parser.currentName}, but for streaming it must be 'method'" })
@@ -287,6 +286,18 @@ object JacksonStreamingParser : JsonParser {
         }
         check(currentToken == JsonToken.END_OBJECT, { "expected end object, got $currentToken" })
         return min..max
+    }
+
+}
+
+object NoOpParser : JsonParser {
+
+    override fun parseRequest(inputStream: InputStream, consumer: (Request) -> Unit) {
+        consumer(JsonParseRequest)
+    }
+
+    override fun serializeResponse(response: Response): String {
+        return "null"
     }
 
 }
