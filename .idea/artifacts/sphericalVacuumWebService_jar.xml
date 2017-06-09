@@ -3,34 +3,34 @@
     <output-path>$PROJECT_DIR$/out/artifacts/sphericalVacuumWebService_jar</output-path>
     <root id="archive" name="sphericalVacuumWebService.jar">
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/main/META-INF/MANIFEST.MF" />
       </element>
       <element id="module-output" name="sphericalVacuumWebService" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-essentials/5.3.5/79232cb4b0ab547e1a463642ab2ea6fb22f81651/rapidoid-essentials-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-http-fast/5.3.5/a35d758a005dd4cdc6e29b20d91e2809b16fc45/rapidoid-http-fast-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-afterburner/2.8.5/b5f9e0e1d850569147110e8ed62947957f5ee3e8/jackson-module-afterburner-2.8.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.8.0/45b426f7796b741035581a176744d91090e2e6fb/jackson-annotations-2.8.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-inject/5.3.5/e852e74cb317bb27a246fc09873f8f92ecdf1da8/rapidoid-inject-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.1.3-eap-68/90a9b5fec86710acefc67d97be142e14d97e197e/kotlin-stdlib-1.1.3-eap-68.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.xnio/xnio-nio/3.3.6.Final/49098a2d34fcfc18360049aaa4679518de165b6/xnio-nio-3.3.6.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jre7/1.1.3-eap-68/7ff82c8929f549f1cda1d792f4caa104dd4637cc/kotlin-stdlib-jre7-1.1.3-eap-68.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-commons/5.3.5/7b2a4e9dfa8a994ba8255fe9f48c2b2e7c1e2fa2/rapidoid-commons-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.0/c4ba5371a29ac9b2ad6129b1d39ea38750043eff/gson-2.8.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.undertow/undertow-core/1.4.12.Final/e7ebd43b6a5a941c1d53d7ab906d0b9379b54dc5/undertow-core-1.4.12.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.8.5/dee4732dc03b6f3ce231fd065dcbbed25755b58f/jackson-dataformat-yaml-2.8.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jre8/1.1.3-eap-68/3235e54874135a535f7dd5b330acac3cb2eab0b4/kotlin-stdlib-jre8-1.1.3-eap-68.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-net/5.3.5/425890b9650589152aad2cd9df8001f0afa464f6/rapidoid-net-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.xnio/xnio-api/3.3.6.Final/a56420f5d0327ddb4eab47bdb4178ea1df480df3/xnio-api-3.3.6.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.8.5/b3035f37e674c04dafe36a660c3815cc59f764e2/jackson-databind-2.8.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.20.0-GA/a9cbcdfb7e9f86fbc74d3afae65f2248bfbf82a0/javassist-3.20.0-GA.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.yaml/snakeyaml/1.17/7a27ea250c5130b2922b86dea63cbb1cc10a660c/snakeyaml-1.17.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-jpa/5.3.5/ae602f65982272c510307dfe5af3d20f46e8c5f7/rapidoid-jpa-5.3.5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-buffer/5.3.5/373a8170813c2f5d068ca9f2eb244ed6a8ada057/rapidoid-buffer-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-render/5.3.5/7697023abf7e7a00fc7825d1230ae26258beda4a/rapidoid-render-5.3.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.logging/jboss-logging/3.2.1.Final/fedf11b3d4665a434b554a5891fe7f208f029f45/jboss-logging-3.2.1.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-net/5.3.5/425890b9650589152aad2cd9df8001f0afa464f6/rapidoid-net-5.3.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jre7/1.1.3-eap-68/7ff82c8929f549f1cda1d792f4caa104dd4637cc/kotlin-stdlib-jre7-1.1.3-eap-68.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-http-fast/5.3.5/a35d758a005dd4cdc6e29b20d91e2809b16fc45/rapidoid-http-fast-5.3.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.1.3-eap-68/90a9b5fec86710acefc67d97be142e14d97e197e/kotlin-stdlib-1.1.3-eap-68.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jre8/1.1.3-eap-68/3235e54874135a535f7dd5b330acac3cb2eab0b4/kotlin-stdlib-jre8-1.1.3-eap-68.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.8.5/dee4732dc03b6f3ce231fd065dcbbed25755b58f/jackson-dataformat-yaml-2.8.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.xnio/xnio-api/3.3.6.Final/a56420f5d0327ddb4eab47bdb4178ea1df480df3/xnio-api-3.3.6.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-afterburner/2.8.5/b5f9e0e1d850569147110e8ed62947957f5ee3e8/jackson-module-afterburner-2.8.5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.9.0.pr3/f9c6d5cfde33c589596d1f43200ec052a2c7c9c0/jackson-core-2.9.0.pr3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-inject/5.3.5/e852e74cb317bb27a246fc09873f8f92ecdf1da8/rapidoid-inject-5.3.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.0/c4ba5371a29ac9b2ad6129b1d39ea38750043eff/gson-2.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.20.0-GA/a9cbcdfb7e9f86fbc74d3afae65f2248bfbf82a0/javassist-3.20.0-GA.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.8.5/b3035f37e674c04dafe36a660c3815cc59f764e2/jackson-databind-2.8.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.8.0/45b426f7796b741035581a176744d91090e2e6fb/jackson-annotations-2.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-commons/5.3.5/7b2a4e9dfa8a994ba8255fe9f48c2b2e7c1e2fa2/rapidoid-commons-5.3.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.logging/jboss-logging/3.2.1.Final/fedf11b3d4665a434b554a5891fe7f208f029f45/jboss-logging-3.2.1.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.undertow/undertow-core/1.4.12.Final/e7ebd43b6a5a941c1d53d7ab906d0b9379b54dc5/undertow-core-1.4.12.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-render/5.3.5/7697023abf7e7a00fc7825d1230ae26258beda4a/rapidoid-render-5.3.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jboss.xnio/xnio-nio/3.3.6.Final/49098a2d34fcfc18360049aaa4679518de165b6/xnio-nio-3.3.6.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-essentials/5.3.5/79232cb4b0ab547e1a463642ab2ea6fb22f81651/rapidoid-essentials-5.3.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.rapidoid/rapidoid-jpa/5.3.5/ae602f65982272c510307dfe5af3d20f46e8c5f7/rapidoid-jpa-5.3.5.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

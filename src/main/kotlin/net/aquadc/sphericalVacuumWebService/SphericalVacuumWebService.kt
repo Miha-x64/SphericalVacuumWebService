@@ -12,6 +12,8 @@ import kotlin.Double.Companion.POSITIVE_INFINITY
  */
 
 typealias Consumer<T> = (T) -> Unit
+typealias BytesConsumer = (bytes: ByteArray, offset: Int, length: Int) -> Unit
+typealias BodyConsumer = (body: ByteArray, offset: Int, length: Int, contentType: String) -> Unit
 
 fun main(args: Array<String>) {
     var host = "localhost"
@@ -86,15 +88,17 @@ class BodyParser(val jsonParser: JsonParser) : (String, InputStream, (Request) -
 class RequestHandler(
         private val jsonParser: JsonParser,
         private val statsRepository: StatsRepository
-) : (Request, /*accept: */String) -> Pair<String, String> {
-    override fun invoke(request: Request, accept: String): Pair<String, String> {
+) : (Request, /*accept: */String, /*buffer: */ByteArray, /*consumer: */BodyConsumer) -> Unit {
+    override fun invoke(request: Request, accept: String, buffer: ByteArray, consumer: BodyConsumer): Unit {
         val response = when (request) {
             is JsonParseRequest -> JsonParseRequest.parse(jsonParser)
             is QuadraticEquationRequest -> request.solve(statsRepository)
             is StatRequest -> statsRepository.findStats(request)
         }
-        return when (accept) {
-            "*/*", "application/json" -> jsonParser.serializeResponse(response) to "application/json"
+        when (accept) {
+            "*/*", "application/json" -> jsonParser.serializeResponse(response) { bytes, offset, length ->
+                consumer(bytes, offset, length, "application/json")
+            }
             else -> throw UnsupportedOperationException("Unsupported 'Accept': $accept")
         }
     }

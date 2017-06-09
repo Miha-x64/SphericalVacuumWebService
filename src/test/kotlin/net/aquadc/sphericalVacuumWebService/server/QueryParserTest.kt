@@ -17,7 +17,7 @@ import java.nio.channels.WritableByteChannel
 class QueryParserTest {
 
     @Test fun parseTest() { // todo: url-decoding
-        val query = "a=x&b=&x=fuck".toByteArray()
+        val query = "a=x&b=&x=fuck&z&yo=yo&lol".toByteArray()
         val buf: Buf = object : Buf {
             override fun bufferIndexOf(position: Int): Int = TODO("not implemented")
             override fun write(byteValue: Int) = TODO("not implemented")
@@ -90,15 +90,28 @@ class QueryParserTest {
         }
         val queryRange = BufRange(0, query.size)
         val countTarget = IntWrap()
-        val queryTarget = BufRanges(10).apply { add(); add(); add(); add(); add(); add(); add(); add(); add(); add() }
+        val queryTarget = BufRanges(16).apply { add(); add(); add(); add(); add(); add(); add(); add(); add(); add(); add(); add(); add(); add(); add(); add() }
         parseQueryString(buf, queryRange, countTarget, queryTarget)
-        assertEquals(3, countTarget.value)
+        assertEquals(6, countTarget.value)
         assertEquals("a", queryTarget[0].str(buf))
         assertEquals("x", queryTarget[1].str(buf))
         assertEquals("b", queryTarget[2].str(buf))
         assertEquals("", queryTarget[3].str(buf))
         assertEquals("x", queryTarget[4].str(buf))
         assertEquals("fuck", queryTarget[5].str(buf))
+        assertEquals("z", queryTarget[6].str(buf))
+        assertEquals("", queryTarget[7].str(buf))
+        assertEquals("yo", queryTarget[8].str(buf))
+        assertEquals("yo", queryTarget[9].str(buf))
+        assertEquals("lol", queryTarget[10].str(buf))
+        assertEquals("", queryTarget[11].str(buf))
+
+        assertEquals("x", queryTarget.findVByK(buf, "a", countTarget.value)!!)
+        assertEquals("", queryTarget.findVByK(buf, "b", countTarget.value)!!)
+        assertEquals("fuck", queryTarget.findVByK(buf, "x", countTarget.value)!!)
+        assertEquals("", queryTarget.findVByK(buf, "z", countTarget.value)!!)
+        assertEquals("yo", queryTarget.findVByK(buf, "yo", countTarget.value)!!)
+        assertEquals("", queryTarget.findVByK(buf, "lol", countTarget.value)!!)
     }
 
 }

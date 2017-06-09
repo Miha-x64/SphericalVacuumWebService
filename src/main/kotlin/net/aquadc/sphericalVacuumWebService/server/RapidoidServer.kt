@@ -1,12 +1,12 @@
 package net.aquadc.sphericalVacuumWebService.server
 
+import net.aquadc.sphericalVacuumWebService.BodyConsumer
 import net.aquadc.sphericalVacuumWebService.Consumer
 import net.aquadc.sphericalVacuumWebService.Request
 import org.rapidoid.buffer.Buf
 import org.rapidoid.data.BufRange
 import org.rapidoid.data.BufRanges
 import org.rapidoid.data.KeyValueRanges
-import org.rapidoid.http.AbstractHttpServer
 import org.rapidoid.http.HttpStatus
 import org.rapidoid.http.MediaType
 import org.rapidoid.net.abstracts.Channel
@@ -19,8 +19,8 @@ class RapidoidServer(
         private val port: Int,
         private val parseQuery: (requestPath: String, queryParameters: KeyValueRanges, getParameter: KeyValueRanges.(name: String) -> String?, consumer: Consumer<Request>) -> Unit,
         private val parseBody: (contentType: String, input: InputStream, consumer: Consumer<Request>) -> Unit,
-        private val handleRequestAndSerializeResponse: (Request, accept: String) -> Pair<String, String>
-) : AbstractHttpServer(), () -> Unit {
+        private val handleRequestAndSerializeResponse: (Request, accept: String, buffer: ByteArray, consumer: BodyConsumer) -> Unit
+) : EnhancedAbsRapidoidHttpServer(), () -> Unit {
 
     override fun invoke() {
         listen(host, port)
@@ -49,7 +49,7 @@ class RapidoidServer(
                 parseQueryString(buf, data.query, data.integers[0], data.ranges1)
 
                 parseQuery(data.path.str(buf), data.params,
-                        { data.ranges1.findVByK(buf, it, data.integers[0].value) }) { handle(ctx, it, accept) }
+                        { data.ranges1.findVByK(buf, it, data.integers[0].value) }) { handle(ctx, it, accept, data.bytes) }
 
                 HttpStatus.DONE
             }
@@ -66,14 +66,14 @@ class RapidoidServer(
         HttpStatus.ERROR
     }
 
-    fun handle(ctx: Channel, request: Request, accept: String) {
-        val (serialized, contentType) =
-                handleRequestAndSerializeResponse(request, accept)
-
-        ok(ctx, true, serialized.toByteArray(), when (contentType) {
-            "application/json" -> MediaType.APPLICATION_JSON
-            else -> TODO("support $contentType")
-        })
+    fun handle(ctx: Channel, request: Request, accept: String, buffer: ByteArray) {
+        handleRequestAndSerializeResponse(request, accept, buffer) { serialized, offset, length, contentType ->
+            startResponse(ctx, true)
+            writeBody(ctx, serialized, offset, length, when (contentType) {
+                "application/json" -> MediaType.APPLICATION_JSON
+                else -> TODO("support $contentType")
+            })
+        }
     }
 }
 
@@ -99,16 +99,19 @@ internal fun parseQueryString(buf: Buf, query: BufRange, countTarget: IntWrap, q
     var key = true // whether current token is a key
     var i = query.start
     while (i <= query.last()) {
-        if (key && buf[i] == KV_SEPAR) {
+        if (key && buf[i] == KV_SEPAR) { // met first '=' in a pair, i. e. there was a key
             val range = queryTarget[++idx]
             range.start = startIdx
             range.length = i - startIdx
             key = false
             startIdx = i + 1
-        } else if (!key && buf[i] == PAIRS_SEPAR) {
+        } else if (buf[i] == PAIRS_SEPAR) { // met '&', i. e. key/[value] pair ended
             val range = queryTarget[++idx]
             range.start = startIdx
             range.length = i - startIdx
+            if (key) { // met '&' without '=', i. e. got key, no value
+                queryTarget[++idx].reset() // no value
+            }
             key = true
             startIdx = i + 1
         }
@@ -117,18 +120,21 @@ internal fun parseQueryString(buf: Buf, query: BufRange, countTarget: IntWrap, q
     queryTarget[++idx].let {
         it.start = startIdx
         it.length = i - startIdx
+        if (key) { // met '&' without '=', i. e. got key, no value
+            queryTarget[++idx].reset() // no value
+        }
     }
     countTarget.value = (idx + 1) / 2
 }
 
 internal fun BufRanges.findVByK(buf: Buf, key: String, maxIndex: Int): String? {
     var i = 0
-    var last = 2 * maxIndex + 1
+    val last = 2 * maxIndex + 1
     while (i <= last) {
         if (key.equalTo(buf, this[i])) {
             return this[i+1].str(buf)
         }
-        i++
+        i += 2
     }
     return null
 }

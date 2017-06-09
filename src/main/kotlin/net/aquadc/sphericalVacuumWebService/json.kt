@@ -5,10 +5,11 @@ import com.fasterxml.jackson.core.JsonToken
 import com.google.gson.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.StringWriter
 import java.time.Instant
+import com.fasterxml.jackson.core.JsonParser as JacksonParser
 
 /**
  * Created by miha on 01.05.17
@@ -16,7 +17,7 @@ import java.time.Instant
 
 interface JsonParser {
     fun parseRequest(inputStream: InputStream, consumer: (Request)->Unit)
-    fun serializeResponse(response: Response): String
+    fun serializeResponse(response: Response, consumer: BytesConsumer)
 }
 
 object GsonAstParser : JsonParser {
@@ -64,8 +65,10 @@ object GsonAstParser : JsonParser {
         consumer(gson.fromJson(InputStreamReader(inputStream), Request::class.java))
     }
 
-    override fun serializeResponse(response: Response): String =
-            gson.toJson(response, Response::class.java)
+    override fun serializeResponse(response: Response, consumer: BytesConsumer) {
+        val bytes = gson.toJson(response, Response::class.java).toByteArray()
+        consumer(bytes, 0, bytes.size) // :'(
+    }
 
     private val JsonElement.asInstant get() = Instant.ofEpochSecond(asLong)
     private val JsonElement.asDoubleRange get() = asJsonObject.let {
@@ -158,8 +161,10 @@ object GsonStreamingParser : JsonParser {
         consumer(gson.fromJson(InputStreamReader(inputStream), Request::class.java))
     }
 
-    override fun serializeResponse(response: Response): String =
-            gson.toJson(response, Response::class.java)
+    override fun serializeResponse(response: Response, consumer: BytesConsumer) {
+        val bytes = gson.toJson(response, Response::class.java).toByteArray()
+        consumer(bytes, 0, bytes.size) // :'(
+    }
 
     private fun JsonReader.nextDoubleRange(): ClosedRange<Double> {
         beginObject()
@@ -197,7 +202,7 @@ object GsonStreamingParser : JsonParser {
 
 object JacksonStreamingParser : JsonParser {
 
-    val factory = JsonFactory().also { it.enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS) }
+    val factory = JsonFactory().also { it.enable(JacksonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS) }
 
     override fun parseRequest(inputStream: InputStream, consumer: (Request) -> Unit) {
         val parser = factory.createParser(inputStream)
@@ -238,8 +243,8 @@ object JacksonStreamingParser : JsonParser {
         })
     }
 
-    override fun serializeResponse(response: Response): String {
-        val out = StringWriter()
+    override fun serializeResponse(response: Response, consumer: BytesConsumer) {
+        val out = ByteArrayOutputStream()
         val gen = factory.createGenerator(out)
         val ex = when (response) {
             is QuadraticEquationSolution -> {
@@ -267,10 +272,11 @@ object JacksonStreamingParser : JsonParser {
             NoResponse -> gen.writeNull()
         }
         gen.flush()
-        return out.toString()
+        val bytes = out.toByteArray()
+        consumer(bytes, 0, bytes.size)
     }
 
-    private fun com.fasterxml.jackson.core.JsonParser.nextDoubleRangeValue(): ClosedRange<Double> {
+    private fun JacksonParser.nextDoubleRangeValue(): ClosedRange<Double> {
         check(nextToken() == JsonToken.START_OBJECT)
         var min = Double.NEGATIVE_INFINITY
         var max = Double.POSITIVE_INFINITY
@@ -292,12 +298,14 @@ object JacksonStreamingParser : JsonParser {
 
 object NoOpParser : JsonParser {
 
+    private val bytes = "null".toByteArray()
+
     override fun parseRequest(inputStream: InputStream, consumer: (Request) -> Unit) {
         consumer(JsonParseRequest)
     }
 
-    override fun serializeResponse(response: Response): String {
-        return "null"
+    override fun serializeResponse(response: Response, consumer: BytesConsumer) {
+        consumer(bytes, 0, bytes.size)
     }
 
 }
